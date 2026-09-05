@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "317904791246",
+    "project_id": "signal-app-8164f",
+    "storage_bucket": "signal-app-8164f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:317904791246:android:a5a998d3e85040fabdd29f",
+        "android_client_info": {
+          "package_name": "com.yourcompany.signal_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "317904791246-u87fgn7l1jr1tdf1tc23v5iksemb6ai7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yourcompany.signal_app",
+            "certificate_hash": "0340f11914f2fc993dc323c8354b6076ac5ba5ad"
+          }
+        },
+        {
+          "client_id": "317904791246-r95s5vesbrffn3qjddigjbu5ihsq2dnf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChpR6kQewzRunWgdcLH8nUkPSI7_XGYTc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "317904791246-r95s5vesbrffn3qjddigjbu5ihsq2dnf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
