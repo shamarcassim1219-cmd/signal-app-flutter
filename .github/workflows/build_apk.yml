@@ -1,0 +1,76 @@
+name: Build APK
+
+# Repo eke code push karapu gaman auto-build wenawa.
+# Build unata pass, Actions tab -> me workflow run eka -> Artifacts section eken
+# APK file eka download karaganna puluwan (phone browser eken vath puluwan).
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch: {}   # "Run workflow" button eken manual ekath run karanna puluwan
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Generate platform folders (android/ios)
+        run: flutter create --org com.yourcompany --project-name signal_app --platforms=android .
+
+      - name: Fix Kotlin version
+        run: sed -i 's/id "org.jetbrains.kotlin.android" version "[0-9.]*"/id "org.jetbrains.kotlin.android" version "1.9.24"/' android/settings.gradle
+
+      - name: Add google-services.json
+        run: cp google-services.json android/app/google-services.json
+
+      - name: Add google-services Gradle classpath
+        run: |
+          printf 'buildscript {\n    repositories { google(); mavenCentral() }\n    dependencies { classpath "com.google.gms:google-services:4.4.2" }\n}\n' > /tmp/gs_prefix.gradle
+          cat /tmp/gs_prefix.gradle android/build.gradle > /tmp/combined.gradle
+          mv /tmp/combined.gradle android/build.gradle
+
+      - name: Apply google-services plugin and signing config
+        run: |
+          echo "apply plugin: 'com.google.gms.google-services'" >> android/app/build.gradle
+          cat >> android/app/build.gradle << 'EOF'
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("release.keystore")
+                      storePassword System.getenv("KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("KEY_ALIAS")
+                      keyPassword System.getenv("KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+
+      - name: Decode release keystore
+        run: echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 -d > android/app/release.keystore
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK (release)
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: signal-app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
